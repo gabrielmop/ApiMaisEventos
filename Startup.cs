@@ -9,7 +9,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ApiMaisEventos
@@ -39,6 +41,11 @@ namespace ApiMaisEventos
                         Url = new Uri("https://github.com/gabrielmop")
                     }
                 });
+
+                //Adicionar configurações extras da documentação, para ler as XMLs
+                var xmlarquivo = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlarquivo));
+
             });
         }
 
