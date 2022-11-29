@@ -1,6 +1,7 @@
 ﻿using ApiMaisEventos.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -114,15 +115,106 @@ namespace ApiMaisEventos.Controllers
             }
         }
 
-      
+
 
 
         //put - alterar
+        /// <summary>
+        /// Altera os Registros dentro do Banco de dados
+        /// </summary>
+        /// <param name="id">Id do Usuario</param>
+        /// <param name="usuario">Todas as inforamações do usuario</param>
+        /// <returns>Informações do Usuario modificadas</returns>
+        [HttpPut("/{id}")]
+        public IActionResult Alterar(int id, Usuarios usuario)
+        {
+            try
+            {
+                //Abrir conexão no banco
+                using (SqlConnection conexao = new SqlConnection(connectionString))
+                {
+                    conexao.Open();
 
+                    string query = "Update Usuarios Set Nome=@Nome, Email=@Email,Senha=@Senha Where Id=@id";
+
+
+                    // Criamos o comando de execução no banco
+                    using (SqlCommand cmd = new SqlCommand(query, conexao))
+                    {
+                        //Fazemos as declarações das variaveis por parametros
+                        cmd.Parameters.Add("@id", System.Data.SqlDbType.NVarChar).Value = id;
+                        cmd.Parameters.Add("@nome", System.Data.SqlDbType.NVarChar).Value = usuario.Nome;
+                        cmd.Parameters.Add("@email", System.Data.SqlDbType.NVarChar).Value = usuario.email;
+                        cmd.Parameters.Add("@senha", System.Data.SqlDbType.NVarChar).Value = usuario.senha;
+
+                        cmd.CommandType = CommandType.Text;
+                        cmd.ExecuteNonQuery();
+                        usuario.Id = id;
+
+                    }
+                    return Ok(usuario);
+                }
+            }
+            catch (System.Exception ex)
+            {
+
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+
+                });
+            }
+        }
 
 
         //Delete - Excluir
+        /// <summary>
+        /// Apaga Usuarios do Banco de dados
+        /// </summary>
+        /// <param name="id">Id do Usuario</param>
+        /// <returns>Usuario apagado</returns>
+        [HttpDelete("/{id}")]
+        public IActionResult Deletar(int id)
+        {
+            try
+            {
+                //Abrir conexão no banco
+                using (SqlConnection conexao = new SqlConnection(connectionString))
+                {
+                    conexao.Open();
+
+                    string query = "Delete from Usuarios Where Id=@id";
 
 
+                    // Criamos o comando de execução no banco
+                    using (SqlCommand cmd = new SqlCommand(query, conexao))
+                    {
+                        //Fazemos as declarações das variaveis por parametros
+                        cmd.Parameters.Add("@id", System.Data.SqlDbType.NVarChar).Value = id;
+                      
+
+                        cmd.CommandType = CommandType.Text;
+                        cmd.ExecuteNonQuery();
+                        
+                    }
+                    return Ok(new
+                    {
+                        Msg = "Usuario excluido com sucesso"
+
+                    });
+                }
+            }
+            catch (System.Exception ex)
+            {
+
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+
+                });
+            }
+        }
     }
 }
