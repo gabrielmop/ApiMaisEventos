@@ -1,3 +1,4 @@
+using APIMaisEventos.ServiceConfiguration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,24 +13,34 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace ApiMaisEventos
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            DefineConfiguration();
         }
 
-        public IConfiguration Configuration { get; }
+        private void DefineConfiguration()
+        {
+            string AppPath = Environment.CurrentDirectory;
+        }
+
+     
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers().AddXmlSerializerFormatters()
+                .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ApiMaisEventos",
@@ -47,6 +58,7 @@ namespace ApiMaisEventos
                 c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlarquivo));
 
             });
+            services.Config(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

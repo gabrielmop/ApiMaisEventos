@@ -1,4 +1,5 @@
 ﻿using ApiMaisEventos.Models;
+using APIMaisEventos.Inerfaces;
 using APIMaisEventos.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace ApiMaisEventos.Controllers
 {
@@ -14,7 +16,12 @@ namespace ApiMaisEventos.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
-        private UsuarioRepository Repositorio = new UsuarioRepository();
+        private readonly IusuarioRepository _usarioRepository;
+        public UsuariosController(IusuarioRepository usuarioRepository) 
+        {
+            _usarioRepository = usuarioRepository;
+        }
+
         //Post - Cadastrar
         /// <summary>
         /// Cadastra usuarios na aplicação
@@ -22,11 +29,11 @@ namespace ApiMaisEventos.Controllers
         /// <param name="User">Dados do usuario</param>
         /// <returns>Dados do Usuario cadastrado</returns>
         [HttpPost]
-        public IActionResult Cadastrar(Usuarios User)
+        public async Task<IActionResult> Cadastrar(Usuarios User)
         {
             try
             {
-                Repositorio.Insert(User);
+                await _usarioRepository.Insert(User);
                 return Ok(User);
             }
 
@@ -50,12 +57,12 @@ namespace ApiMaisEventos.Controllers
         /// </summary>
         /// <returns>Lista de usuarios</returns>
         [HttpGet]
-        public IActionResult Listar()
+        public async Task<IActionResult> Listar()
         {
             try
             {
                 
-               var Usuarios = Repositorio.GetAll();
+               var Usuarios = await _usarioRepository.GetAll();
                                                    
                 return Ok(Usuarios);
             }
@@ -73,7 +80,28 @@ namespace ApiMaisEventos.Controllers
             }
         }
 
+        [HttpGet("{Id}")]
+        public async Task<IActionResult> BuscarPorid(int Id)
+        {
+            try
+            {
+                var Usuarios = await _usarioRepository.GetBy(Id);
 
+                return Ok(Usuarios);
+            }
+
+
+            catch (System.Exception ex)
+            {
+
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+
+                });
+            }
+        }
 
 
         //put - alterar
@@ -84,18 +112,18 @@ namespace ApiMaisEventos.Controllers
         /// <param name="usuario">Todas as inforamações do usuario</param>
         /// <returns>Informações do Usuario modificadas</returns>
         [HttpPut("/{id}")]
-        public IActionResult Alterar(int id, Usuarios usuario)
+        public async Task<IActionResult> Alterar(int id, Usuarios usuario)
         {
             try
             {
-                var BuscarUsuario = Repositorio.GetBy(id);
+                var BuscarUsuario = _usarioRepository.GetBy(id);
                 if(BuscarUsuario == null)
                 {
                     return NotFound();
                 }
                 else
                 {
-                    var userAlterado = Repositorio.Update(id, usuario);
+                    var userAlterado = _usarioRepository.Update(usuario);
                 }
                     return Ok(usuario);
                 
@@ -120,16 +148,16 @@ namespace ApiMaisEventos.Controllers
         /// <param name="id">Id do Usuario</param>
         /// <returns>Usuario apagado</returns>
         [HttpDelete("/{id}")]
-        public IActionResult Deletar(int id)
+        public async Task<IActionResult> Deletar(int id)
         {
             try
             {
-                var BuscarUsuario = Repositorio.GetBy(id);
+                var BuscarUsuario = await _usarioRepository.GetBy(id);
                 if (BuscarUsuario == null)
                 {
                     return NotFound();
                 }
-                 Repositorio.Delete(id);
+                _usarioRepository.Delete(id);
                 return Ok(new
                 {
                     mgs = "Usuario Excluido com sucesso"

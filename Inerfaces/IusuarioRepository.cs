@@ -1,5 +1,6 @@
 ﻿using ApiMaisEventos.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace APIMaisEventos.Inerfaces
 {
@@ -7,13 +8,13 @@ namespace APIMaisEventos.Inerfaces
     {
         //CRUD
         //Read
-        ICollection<Usuarios>GetAll();
-        Usuarios GetBy(int id);
+        Task<List<Usuarios>> GetAll();
+        Task<Usuarios> GetBy(int id);
         //Create
-        Usuarios Insert(Usuarios User);
+        Task Insert(Usuarios User);
         //Update
-        Usuarios Update(int id, Usuarios User);
+        Task Update(Usuarios User);
         //Delete
-        bool Delete(int id);
+        Task Delete(int id);
     }
 }
