@@ -15,7 +15,7 @@ namespace APIMaisEventos.Infra
     {
         private string connectionString;
         private readonly IAppSettingsManager _appSettingsManager;
-        public SqlDataContext(IAppSettingsManager appSettingsManager) 
+        public SqlDataContext(IAppSettingsManager appSettingsManager)
         {
             _appSettingsManager = appSettingsManager;
             connectionString = _appSettingsManager.GetValue("DBConnection");
@@ -50,7 +50,7 @@ namespace APIMaisEventos.Infra
             return true;
         }
 
-        public async Task<IEnumerable<T>> SelectListFromSql <T>(string ProcedureName, Dictionary<string, object> Parameters = null) 
+        public async Task<IEnumerable<T>> SelectListFromSql<T>(string ProcedureName, Dictionary<string, object> Parameters = null)
         {
             using (SqlConnection conexao = new SqlConnection(connectionString))
             {
@@ -92,7 +92,7 @@ namespace APIMaisEventos.Infra
             {
                 conexao.Open();
 
-            
+
 
                 using (SqlCommand cmd = new SqlCommand(ProcedureName, conexao))
                 {
@@ -155,13 +155,22 @@ namespace APIMaisEventos.Infra
             T obj = default(T);
             dr.Read();
             obj = Activator.CreateInstance<T>();
-                foreach (PropertyInfo prop in obj.GetType().GetProperties())
+
+            foreach (PropertyInfo prop in obj.GetType().GetProperties())
+            {
+                try
                 {
                     if (!object.Equals(dr[prop.Name], DBNull.Value))
                     {
                         prop.SetValue(obj, dr[prop.Name], null);
                     }
                 }
+                catch (Exception ex)
+                {
+                    prop.SetValue(obj, default, null);
+                    continue;
+                }
+            }
             return obj;
         }
 

@@ -7,6 +7,7 @@ using APIMaisEventos.Inerfaces.Infra;
 using APIMaisEventos.Infra;
 using System.Threading.Tasks;
 using System.Linq;
+using System;
 
 namespace APIMaisEventos.Repositories
 {
@@ -14,7 +15,7 @@ namespace APIMaisEventos.Repositories
     {
         private readonly IAppSettingsManager _appSettingsManager;
         private readonly ISqlDataContext _sqlDataContext;
-        public UsuarioRepository(IAppSettingsManager appSettingsManager, ISqlDataContext sqlDataContext) 
+        public UsuarioRepository(IAppSettingsManager appSettingsManager, ISqlDataContext sqlDataContext)
         {
             _sqlDataContext = sqlDataContext;
             _appSettingsManager = appSettingsManager;
@@ -32,7 +33,7 @@ namespace APIMaisEventos.Repositories
         {
             IEnumerable<Usuarios> result;
             result = await _sqlDataContext.SelectListFromSql<Usuarios>("SelectAllUsers", null);
-            
+
             return result.ToList();
         }
         public async Task<Usuarios> GetBy(int id)
@@ -56,9 +57,18 @@ namespace APIMaisEventos.Repositories
         public async Task Update(Usuarios User)
         {
             await _sqlDataContext.NonQueryToSql("UpdateUserById",
-                new Dictionary<string, object> { { "@Id", User.Id },
+                    new Dictionary<string, object> {
                     { "@Nome", User.Nome }, {"@Email", User.email },
                     { "@Senha", User.senha } });
+        }
+
+        public async Task<Usuarios> SearchUserByName(string Nome)
+        {
+            Usuarios result;
+            result = await _sqlDataContext.SelectSingleOrDefaultFromSql<Usuarios>("BuscarUsuarioPorNome",
+                new Dictionary<string, object> { { "@Nome", Nome } });
+
+            return result;
         }
     }
 }

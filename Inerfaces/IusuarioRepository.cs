@@ -16,5 +16,7 @@ namespace APIMaisEventos.Inerfaces
         Task Update(Usuarios User);
         //Delete
         Task Delete(int id);
+        //Buscar Por nome
+        Task<Usuarios> SearchUserByName(string Nome);
     }
 }

@@ -16,10 +16,10 @@ namespace ApiMaisEventos.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
-        private readonly IusuarioRepository _usarioRepository;
-        public UsuariosController(IusuarioRepository usuarioRepository) 
+        private readonly IUsuarioService _usuarioService;
+        public UsuariosController(IUsuarioService usuarioService) 
         {
-            _usarioRepository = usuarioRepository;
+            _usuarioService = usuarioService;
         }
 
         //Post - Cadastrar
@@ -28,12 +28,12 @@ namespace ApiMaisEventos.Controllers
         /// </summary>
         /// <param name="User">Dados do usuario</param>
         /// <returns>Dados do Usuario cadastrado</returns>
-        [HttpPost]
+        [HttpPost("Cadastrar")]
         public async Task<IActionResult> Cadastrar(Usuarios User)
         {
             try
             {
-                await _usarioRepository.Insert(User);
+                await _usuarioService.Cadastrar(User);
                 return Ok(User);
             }
 
@@ -56,13 +56,13 @@ namespace ApiMaisEventos.Controllers
         /// Lista todos os usuarios da aplicação
         /// </summary>
         /// <returns>Lista de usuarios</returns>
-        [HttpGet]
+        [HttpGet("Listar")]
         public async Task<IActionResult> Listar()
         {
             try
             {
                 
-               var Usuarios = await _usarioRepository.GetAll();
+               var Usuarios = await _usuarioService.Listar();
                                                    
                 return Ok(Usuarios);
             }
@@ -80,12 +80,12 @@ namespace ApiMaisEventos.Controllers
             }
         }
 
-        [HttpGet("{Id}")]
+        [HttpGet("BuscarPorid/{Id}")]
         public async Task<IActionResult> BuscarPorid(int Id)
         {
             try
             {
-                var Usuarios = await _usarioRepository.GetBy(Id);
+                var Usuarios = await _usuarioService.BuscarPorid(Id);
 
                 return Ok(Usuarios);
             }
@@ -111,21 +111,13 @@ namespace ApiMaisEventos.Controllers
         /// <param name="id">Id do Usuario</param>
         /// <param name="usuario">Todas as inforamações do usuario</param>
         /// <returns>Informações do Usuario modificadas</returns>
-        [HttpPut("/{id}")]
+        [HttpPut("Alterar/{id}")]
         public async Task<IActionResult> Alterar(int id, Usuarios usuario)
         {
             try
             {
-                var BuscarUsuario = _usarioRepository.GetBy(id);
-                if(BuscarUsuario == null)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    var userAlterado = _usarioRepository.Update(usuario);
-                }
-                    return Ok(usuario);
+                 await _usuarioService.Alterar(id, usuario);
+                 return Ok(usuario);
                 
             }
             catch (System.Exception ex)
@@ -147,17 +139,17 @@ namespace ApiMaisEventos.Controllers
         /// </summary>
         /// <param name="id">Id do Usuario</param>
         /// <returns>Usuario apagado</returns>
-        [HttpDelete("/{id}")]
+        [HttpDelete("Deletar/{id}")]
         public async Task<IActionResult> Deletar(int id)
         {
             try
             {
-                var BuscarUsuario = await _usarioRepository.GetBy(id);
+                var BuscarUsuario = await _usuarioService.BuscarPorid(id);
                 if (BuscarUsuario == null)
                 {
                     return NotFound();
                 }
-                _usarioRepository.Delete(id);
+                _usuarioService.Deletar(id);
                 return Ok(new
                 {
                     mgs = "Usuario Excluido com sucesso"
@@ -179,7 +171,30 @@ namespace ApiMaisEventos.Controllers
         }
 
 
-        // Repository Pattern
+
+        [HttpGet("Login/{Nome}/{Senha}")]
+        public async Task<IActionResult> Login(string Nome, string Senha)
+        {
+            try
+            {
+
+                bool Login = await _usuarioService.SeachUserByName(Nome, Senha);
+
+                 return Ok(Login);
+            }
+
+
+            catch (System.Exception ex)
+            {
+
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+
+                });
+            }
+        }
 
 
     }
