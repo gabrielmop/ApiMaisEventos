@@ -18,8 +18,11 @@ namespace APIMaisEventos.ServiceConfiguration
             services.AddTransient<IUsuarioService, UsuarioService>();
             services.AddTransient<IAppSettingsManager, AppSettingsManager>();
             services.AddTransient<ISqlDataContext, SqlDataContext>();
+            services.AddTransient<ILogservico, LogServico>();
+            services.AddTransient<ILogRepository, LogRepository>();
             services.AddTransient<IusuarioRepository, UsuarioRepository>();
             services.BuildServiceProvider();
+
         }
     }
 }

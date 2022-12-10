@@ -10,17 +10,33 @@ namespace APIMaisEventos.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IusuarioRepository _usuarioRepository;
-        public UsuarioService(IusuarioRepository usuarioRepository)
+        private readonly ILogservico _logservico;
+
+
+
+        public UsuarioService(IusuarioRepository usuarioRepository, ILogservico logservico)
         {
             _usuarioRepository = usuarioRepository;
+            _logservico = logservico;
         }
+
         public async Task Alterar(int Id, Usuarios usuario)
         {
+            try
+            {
 
-            usuario.senha = HashPass(usuario.senha);
 
-            if(await _usuarioRepository.GetBy(Id) != null)  
-                await _usuarioRepository.Update(usuario);
+                usuario.senha = HashPass(usuario.senha);
+
+                if (await _usuarioRepository.GetBy(Id) != null)
+                    await _usuarioRepository.Update(usuario);
+                _logservico.SalvarLog(DateTime.Now, 0, $"O usuario {usuario.Nome} Alterou Dados Cadastrais", null);
+            }
+            catch (Exception ex)
+            {
+                _logservico.SalvarLog(DateTime.Now, 1, string.Empty, ex.Message);
+            }
+            
         }
 
         private string HashPass(string senha)
@@ -32,18 +48,48 @@ namespace APIMaisEventos.Services
 
         public async Task<Usuarios> BuscarPorid(int Id)
         {
-           return await _usuarioRepository.GetBy(Id);
+            try
+            {
+                return await _usuarioRepository.GetBy(Id);
+            }
+            catch (Exception ex)
+            {
+                _logservico.SalvarLog(DateTime.Now,1,string.Empty, ex.Message);
+                return null;
+            }
         }
+        
 
         public async Task Cadastrar(Usuarios usuario)
         {
-            await _usuarioRepository.Insert(usuario);
+            try
+            {
+                usuario.senha = HashPass(usuario.senha);
+                await _usuarioRepository.Insert(usuario);
+               
+
+                _logservico.SalvarLog(DateTime.Now, 0, $"O Usuario {usuario.Nome} Foi cadastrado", null);
+            }
+         
+            catch (Exception ex)
+            {
+                _logservico.SalvarLog(DateTime.Now,1,"", ex.Message);
+            }
         }
 
         public async Task Deletar(int Id)
         {
-            if (await _usuarioRepository.GetBy(Id) != null)
-                await _usuarioRepository.Delete(Id);
+            try
+            {
+                if (await _usuarioRepository.GetBy(Id) != null)
+                    await _usuarioRepository.Delete(Id);
+
+                _logservico.SalvarLog(DateTime.Now, 0, $"O usuario de Id {Id} foi apagado", null);
+            }
+            catch (Exception ex)
+            {
+                _logservico.SalvarLog(DateTime.Now, 1, "", ex.Message);
+            }
         }
 
         public async Task<List<Usuarios>> Listar()
@@ -68,6 +114,8 @@ namespace APIMaisEventos.Services
                 return false;
 
         }
+
+
 
     }
 }

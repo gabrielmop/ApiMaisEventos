@@ -35,7 +35,7 @@ namespace APIMaisEventos.Infra
                     cmd.Parameters.Clear();
                     foreach (KeyValuePair<string, object> kvp in Parameters)
                     {
-                        cmd.Parameters.AddWithValue(kvp.Key, kvp.Value);
+                        cmd.Parameters.AddWithValue(kvp.Key, kvp.Value ?? DBNull.Value);
                     }
 
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -65,7 +65,7 @@ namespace APIMaisEventos.Infra
                         cmd.Parameters.Clear();
                         foreach (KeyValuePair<string, object> kvp in Parameters)
                         {
-                            cmd.Parameters.AddWithValue(kvp.Key, kvp.Value);
+                            cmd.Parameters.AddWithValue(kvp.Key, kvp.Value ?? DBNull.Value);
                         }
                     }
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -102,7 +102,7 @@ namespace APIMaisEventos.Infra
                         cmd.Parameters.Clear();
                         foreach (KeyValuePair<string, object> kvp in Parameters)
                         {
-                            cmd.Parameters.AddWithValue(kvp.Key, kvp.Value);
+                            cmd.Parameters.AddWithValue(kvp.Key, kvp.Value ?? DBNull.Value);
                         }
                     }
                     T result;
